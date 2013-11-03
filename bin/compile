@@ -38,7 +38,7 @@ function setup() {
     tar xzf $cache -C $dir
   else
     echo "fetching $url"
-    curl -L $url -s -o - | tee $cache | tar xzf - -C $dir
+    curl -L $url -o - | tee $cache | tar xzf - -C $dir
   fi
 }
 
