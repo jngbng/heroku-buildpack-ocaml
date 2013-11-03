@@ -5,8 +5,9 @@ set -e
 set -o pipefail
 urls=(
 https://github.com/heroku-buildpack-ocaml/build-scripts/raw/master/files/gdbm-1.10.tgz
-https://github.com/jngbng/heroku-buildpack-ocaml-src/raw/master/pre-compiled/pcre-8.3.3.utf8.tgz
-https://codefirst.org/mzp/ocamlbrew-4.00.1_1.tgz
+http://bongya.iptime.org:18888/pcre-8.3.3.utf8.tgz
+http://bongya.iptime.org:18888/sqlite3-3.8.1.tgz
+http://bongya.iptime.org:18888/ocamlbrew-4.00.1.eliom.tgz
 )
 
 BUILD_DIR=$1
@@ -61,8 +62,10 @@ for url in ${urls[@]}; do
   setup /app/vendor/$(basename $url .tgz | sed 's/-[^-]*$//') $url
 done
 
-echo "-----> Setup LD_PRELOAD"
+echo "-----> Setup env"
 export LD_PRELOAD=/app/vendor/pcre/lib/libpcre.so.1
+export PKG_CONFIG_PATH=/app/vendor/pcre/lib/pkgconfig:/app/vendor/sqlite3/lib/pkgconfig:$PKG_CONFIG_PATH
+export PATH=/app/vendor/pcre/bin:/app/vendor/sqlite3/bin:$PATH
 
 echo "-----> Setup OCamlbrew"
 source /app/vendor/ocamlbrew/ocaml-4.00.1/etc/ocamlbrew.bashrc
@@ -91,7 +94,4 @@ echo "-----> Compiling with Make"
 make all 2>&1 | indent
 
 echo "-----> Install runtime environment"
-copy vendor/pcre/{share,lib}
-copy vendor/gdbm/lib
-copy vendor/ocamlbrew/ocaml-4.00.1/lib
-copy vendor/ocamlbrew/opamlib/system/{lib,bin}
+copy vendor
